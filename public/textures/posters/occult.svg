@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#140813"/>
+  <circle cx="200" cy="200" r="150" fill="none" stroke="#7b2d8e" stroke-width="6"/>
+  <circle cx="200" cy="200" r="90" fill="none" stroke="#e2b342" stroke-width="3"/>
+  <polygon points="200,60 240,180 120,110 280,110 160,180" fill="none" stroke="#c92a2a" stroke-width="4"/>
+  <circle cx="200" cy="200" r="18" fill="#c92a2a"/>
+  <text x="200" y="380" text-anchor="middle" font-family="serif" font-size="18" fill="#e2b342">OCCULT FORTRESS</text>
+</svg>

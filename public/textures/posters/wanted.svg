@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="520" viewBox="0 0 400 520">
+  <rect width="400" height="520" fill="#cbb48a"/>
+  <rect x="14" y="14" width="372" height="492" fill="none" stroke="#3a2a18" stroke-width="8"/>
+  <text x="200" y="70" text-anchor="middle" font-family="serif" font-size="48" font-weight="700" fill="#5a1010">WANTED</text>
+  <text x="200" y="104" text-anchor="middle" font-family="serif" font-size="20" fill="#3a2a18">DEAD OR UNDEAD</text>
+  <rect x="90" y="130" width="220" height="240" fill="#2a241c"/>
+  <circle cx="200" cy="220" r="48" fill="#6b5340"/>
+  <rect x="150" y="268" width="100" height="80" fill="#4a3a2c"/>
+  <text x="200" y="410" text-anchor="middle" font-family="serif" font-size="22" fill="#3a2a18">HAUPTMANN KRIEG</text>
+  <text x="200" y="450" text-anchor="middle" font-family="serif" font-size="28" font-weight="700" fill="#5a1010">5000 REICHSMARKS</text>
+  <text x="200" y="488" text-anchor="middle" font-family="serif" font-size="14" fill="#3a2a18">ZOMBIE FRONT 1944</text>
+</svg>

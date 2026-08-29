@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#1a1c16"/>
+  <polygon points="200,36 372,340 28,340" fill="#e2b342"/>
+  <polygon points="200,70 338,326 62,326" fill="#1a1c16"/>
+  <rect x="186" y="150" width="28" height="110" fill="#e2b342"/>
+  <rect x="186" y="278" width="28" height="28" fill="#e2b342"/>
+  <text x="200" y="380" text-anchor="middle" font-family="monospace" font-size="22" fill="#e2b342">CONTAMINATED</text>
+</svg>
