@@ -16,9 +16,27 @@ Scores survive Worker restarts, redeploys, and are visible from any device that 
 │   ├── index.html
 │   ├── favicon.svg
 │   ├── css/style.css
-│   └── js/                   Game client (ES modules, no bundler)
+│   ├── js/
+│   └── textures/
+│       ├── walls/     tiled onto boundary walls
+│       └── posters/   hung on the inner wall faces
 └── README.md
 ```
+
+## Wall images
+
+Drop PNG / JPG / WEBP / SVG files into:
+
+- `public/textures/walls/` — wraps the four boundary walls
+- `public/textures/posters/` — pictures on the inner face
+
+Then list them in `public/js/wall-art.js`:
+
+```js
+{ src: "./textures/posters/my-photo.jpg", wall: "north", along: -8, y: 3.2, width: 4, height: 3 }
+```
+
+`wall` is `north` / `south` / `east` / `west`. `along` is meters along that wall (`-32` to `+32`).
 
 ## Durable Objects leaderboard
 
@@ -37,77 +55,23 @@ Scores survive Worker restarts, redeploys, and are visible from any device that 
 - `GET /api/stats` — totals
 - `GET /api/health` — confirms the DO is reachable and returns row count
 
-Worker `run_worker_first = ["/api/*"]` so API hits the Worker (and then the DO). Everything else is served from `public/` as Workers Assets.
-
-### Safety rails
-
-- Names sanitized (letters/numbers/space/`_-.`, max 20 chars)
-- Difficulty / map allowlists
-- Headshots cannot exceed kills
-- Hard score / wave / kill caps plus a plausibility ceiling from reported stats
-- Per-client rate limit: min 4s between posts, max 8 per minute (`CF-Connecting-IP`)
-- Table pruned to the top 500 scores
-- Client falls back to `localStorage` if the DO is unreachable and labels the board as local
-
 ## Setup
 
 ```bash
 npm install
-npx wrangler login          # once per machine
-npm run dev                 # wrangler dev — game + API on localhost
+npx wrangler login
+npm run dev
 ```
-
-Open the printed localhost URL (not a raw `public/index.html` file). The Durable Object only exists inside Wrangler / the deployed Worker.
 
 ## Deploy
 
-Click the **Deploy to Cloudflare** button above, or from a clone:
+Click the **Deploy to Cloudflare** button above, or:
 
 ```bash
 npm run deploy
 ```
 
-Use `wrangler.json` as the source of truth. Wrangler 4.x treats `migrations` and `exports` as mutually exclusive — this project uses `exports` only. If the CLI complains about two config files, keep `wrangler.json` and delete `wrangler.toml`.
-
-If submit-score says the Durable Object binding is missing, redeploy after confirming `durable_objects.bindings` and `exports.LeaderboardDO` are in `wrangler.json`, then hit `/api/health`.
-
-Required config:
-
-```json
-{
-  "durable_objects": {
-    "bindings": [{ "name": "LEADERBOARD", "class_name": "LeaderboardDO" }]
-  },
-  "exports": {
-    "LeaderboardDO": { "type": "durable-object", "storage": "sqlite" }
-  }
-}
-```
-
-## How to verify the leaderboard across devices
-
-1. Deploy and copy the `*.workers.dev` (or custom) URL.
-2. On device A: `GET /api/health` should return `{ ok: true, object: "LeaderboardDO", rows: N }`.
-3. Play a short run on device A, submit a unique soldier name on Game Over.
-4. Confirm the response shows `Score recorded! Global Rank #…` (not “Saved locally”).
-5. On device B (other browser, phone, or incognito): open the **same URL** → Global Leaderboard.
-6. The name/score from step 3 must appear, with source text `LIVE — Cloudflare Durable Object`.
-7. Redeploy and reload device B — the score must still be there.
-
-Example submit:
-
-```bash
-curl -sS -X POST https://YOUR-WORKER/api/submit-score \
-  -H 'content-type: application/json' \
-  -d '{"playerName":"Test Rifleman","score":1200,"wave":2,"levelName":"NORMANDY VILLAGE","kills":8,"headshots":2,"difficulty":"Normal"}'
-```
-
-## Gameplay notes
-
-- Four maps × five waves; wave 5 is the map boss.
-- Drops: ammo, health, armor, double-damage, insta-kill, speed, nuke.
-- Armory between waves.
-- Desktop: WASD + mouse + pointer lock. Mobile: left stick, right look pad, FIRE / ADS / R / JUMP.
+Use `wrangler.json`. Do not add a `migrations` array (Wrangler 4 treats `migrations` and `exports` as mutually exclusive).
 
 ## Scripts
 
