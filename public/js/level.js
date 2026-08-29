@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Zombie, BossZombie } from './enemies.js';
+import { WALL_ART } from './wall-art.js';
 
 export class LevelManager {
   constructor(scene, audioEngine, particleSystem) {
@@ -19,6 +20,8 @@ export class LevelManager {
     this.spawnTimer = 0;
     this.spawnInterval = 1.8;
     this.obstacles = [];
+    this.textureLoader = new THREE.TextureLoader();
+    this.loadedTextures = [];
     this.spawnPoints = [
       new THREE.Vector3(20, 0, 20),
       new THREE.Vector3(-20, 0, 20),
@@ -55,13 +58,83 @@ export class LevelManager {
     this.setupLighting();
   }
 
+  artConfig() {
+    return WALL_ART[this.currentLevelNum] || WALL_ART.default;
+  }
+
+  loadTexture(src, repeatX = 1, repeatY = 1) {
+    if (!src) return null;
+    const tex = this.textureLoader.load(src, () => {}, undefined, () => {
+      console.warn('Wall image failed to load:', src);
+    });
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(repeatX, repeatY);
+    tex.anisotropy = 8;
+    this.loadedTextures.push(tex);
+    return tex;
+  }
+
+  makeWallMaterial(art) {
+    const repeat = art.wallRepeat || [8, 2];
+    const map = this.loadTexture(art.wallTexture, repeat[0], repeat[1]);
+    return new THREE.MeshStandardMaterial({
+      color: map ? 0xffffff : 0x1a1c1a,
+      map,
+      roughness: 0.85,
+      metalness: 0.08
+    });
+  }
+
   buildBoundaryWalls() {
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x1a1c1a, roughness: 0.8 });
+    const art = this.artConfig();
+    const wallMat = this.makeWallMaterial(art);
     const wallGeom = new THREE.BoxGeometry(80, 8, 2);
     const wN = new THREE.Mesh(wallGeom, wallMat); wN.position.set(0, 4, -40); this.levelGroup.add(wN);
     const wS = new THREE.Mesh(wallGeom, wallMat); wS.position.set(0, 4, 40); this.levelGroup.add(wS);
     const wE = new THREE.Mesh(wallGeom, wallMat); wE.rotation.y = Math.PI / 2; wE.position.set(40, 4, 0); this.levelGroup.add(wE);
     const wW = new THREE.Mesh(wallGeom, wallMat); wW.rotation.y = Math.PI / 2; wW.position.set(-40, 4, 0); this.levelGroup.add(wW);
+    this.hangWallPosters(art);
+  }
+
+  hangWallPosters(art) {
+    const posters = art.posters || [];
+    const inset = 1.12;
+    const specs = {
+      north: { origin: new THREE.Vector3(0, 0, -40 + inset), along: new THREE.Vector3(1, 0, 0), yaw: 0 },
+      south: { origin: new THREE.Vector3(0, 0, 40 - inset), along: new THREE.Vector3(-1, 0, 0), yaw: Math.PI },
+      east: { origin: new THREE.Vector3(40 - inset, 0, 0), along: new THREE.Vector3(0, 0, 1), yaw: -Math.PI / 2 },
+      west: { origin: new THREE.Vector3(-40 + inset, 0, 0), along: new THREE.Vector3(0, 0, -1), yaw: Math.PI / 2 }
+    };
+    posters.forEach((poster) => {
+      const spec = specs[poster.wall];
+      if (!spec || !poster.src) return;
+      const map = this.loadTexture(poster.src, 1, 1);
+      if (!map) return;
+      map.wrapS = THREE.ClampToEdgeWrapping;
+      map.wrapT = THREE.ClampToEdgeWrapping;
+      const width = poster.width || 3.2;
+      const height = poster.height || 3.2;
+      const mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(width, height),
+        new THREE.MeshStandardMaterial({ map, color: 0xffffff, roughness: 0.7, metalness: 0.05, side: THREE.FrontSide })
+      );
+      mesh.position.copy(spec.origin);
+      mesh.position.addScaledVector(spec.along, Number(poster.along) || 0);
+      mesh.position.y = poster.y == null ? 3.1 : poster.y;
+      mesh.rotation.y = spec.yaw;
+      mesh.castShadow = true;
+      this.levelGroup.add(mesh);
+      const frame = new THREE.Mesh(
+        new THREE.PlaneGeometry(width + 0.18, height + 0.18),
+        new THREE.MeshStandardMaterial({ color: 0x2a2218, roughness: 0.9 })
+      );
+      frame.position.copy(mesh.position);
+      frame.position.addScaledVector(new THREE.Vector3(Math.sin(spec.yaw), 0, Math.cos(spec.yaw)), -0.02);
+      frame.rotation.y = spec.yaw;
+      this.levelGroup.add(frame);
+    });
   }
 
   buildMapProps(levelNum) {
@@ -189,5 +262,7 @@ export class LevelManager {
       this.boss = null;
     }
     while (this.levelGroup.children.length > 0) this.levelGroup.remove(this.levelGroup.children[0]);
+    this.loadedTextures.forEach(tex => tex.dispose());
+    this.loadedTextures = [];
   }
 }
