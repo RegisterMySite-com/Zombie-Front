@@ -1,0 +1,17 @@
+{
+  "name": "zombie-front-1944",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "WW2-themed 3D zombie shooter with a Cloudflare Durable Objects leaderboard.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "types": "wrangler types"
+  },
+  "devDependencies": {
+    "wrangler": "^4.28.0"
+  }
+}

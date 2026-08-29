@@ -1,0 +1,22 @@
+# Zombie Front 1944 — Cloudflare Workers + Assets + Durable Objects
+# Wrangler 4.x: use `exports` (not `migrations`) to declare DO lifecycle.
+# If Wrangler reports two config files, keep wrangler.json and delete this file.
+
+name = "zombie-front-1944"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+html_handling = "auto-trailing-slash"
+not_found_handling = "single-page-application"
+run_worker_first = [ "/api/*" ]
+
+[[durable_objects.bindings]]
+name = "LEADERBOARD"
+class_name = "LeaderboardDO"
+
+[exports.LeaderboardDO]
+type = "durable-object"
+storage = "sqlite"
