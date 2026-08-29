@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zombie Front 1944: Undead Rising</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Special+Elite&family=Teko:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script type="importmap">{"imports":{"three":"https://esm.sh/three@0.160.0","three/addons/":"https://esm.sh/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+  <div id="canvas-container"></div>
+  <div id="hud-container" class="hidden">
+    <div id="crosshair"><div class="ch-line ch-top"></div><div class="ch-line ch-bottom"></div><div class="ch-line ch-left"></div><div class="ch-line ch-right"></div><div class="ch-dot"></div></div>
+    <div id="hitmarker" class="hidden"></div>
+    <div id="damage-vignette"></div>
+    <div id="blood-splatter-overlay"></div>
+    <div id="pickup-notification-container"></div>
+    <div id="top-bar">
+      <div class="top-stat-box"><span class="stat-label">LEVEL</span><span id="hud-level-name" class="stat-value text-gold">NORMANDY VILLAGE</span></div>
+      <div class="top-stat-box"><span class="stat-label">WAVE</span><span id="hud-wave-num" class="stat-value">1 / 5</span></div>
+      <div class="top-stat-box"><span class="stat-label">SCORE</span><span id="hud-score" class="stat-value">000000</span></div>
+      <div class="top-stat-box"><span class="stat-label">COMBO</span><span id="hud-combo" class="stat-value text-red">1.0x</span></div>
+    </div>
+    <div id="boss-bar-container" class="hidden">
+      <div id="boss-name">HAUPTMANN KRIEG</div>
+      <div class="boss-hp-outer"><div id="boss-hp-fill" style="width:100%"></div></div>
+      <div id="boss-phase-badge">PHASE 1</div>
+    </div>
+    <div id="minimap-container"><canvas id="minimap-canvas" width="160" height="160"></canvas><div class="minimap-border"></div><div class="minimap-compass">N</div></div>
+    <div id="bottom-left-hud">
+      <div class="hud-status-row"><span class="hud-icon">+</span><div class="hud-bar-bg"><div id="health-bar-fill" class="hud-bar-fill health-color" style="width:100%"></div></div><span id="health-text" class="hud-val">100 HP</span></div>
+      <div class="hud-status-row"><span class="hud-icon">#</span><div class="hud-bar-bg"><div id="armor-bar-fill" class="hud-bar-fill armor-color" style="width:0%"></div></div><span id="armor-text" class="hud-val">0 ARMOR</span></div>
+      <div id="stamina-row" class="hud-status-row"><span class="hud-icon">*</span><div class="hud-bar-bg"><div id="stamina-bar-fill" class="hud-bar-fill stamina-color" style="width:100%"></div></div></div>
+    </div>
+    <div id="bottom-right-hud">
+      <div id="weapon-display"><div id="weapon-name">M1 GARAND</div><div id="ammo-count"><span id="clip-ammo">8</span> / <span id="reserve-ammo">80</span></div><div id="fire-mode">SEMI-AUTO</div></div>
+      <div id="weapon-slots"><div class="w-slot active" data-slot="1">1: M1 GARAND</div><div class="w-slot" data-slot="2">2: THOMPSON</div><div class="w-slot" data-slot="3">3: MP40</div><div class="w-slot" data-slot="4">4: KAR98K</div><div class="w-slot" data-slot="5">5: SHOTGUN</div></div>
+    </div>
+    <div id="wave-banner" class="hidden"><h2 id="wave-banner-title">WAVE 1</h2><p id="wave-banner-sub">PREPARE</p></div>
+    <div id="powerup-badges"></div>
+  </div>
+  <div id="touch-controls"><div id="look-pad" class="look-pad"></div><div id="touch-stick" class="touch-stick-base"><div id="touch-stick-knob" class="touch-stick-knob"></div></div><div class="touch-btn-cluster"><button id="touch-ads" class="touch-btn" type="button">ADS</button><button id="touch-reload" class="touch-btn" type="button">R</button><button id="touch-jump" class="touch-btn" type="button">JUMP</button><button id="touch-fire" class="touch-btn fire" type="button">FIRE</button></div></div>
+  <div id="main-menu" class="overlay-screen"><div class="menu-content"><h1 class="game-title">ZOMBIE FRONT <span class="text-red">1944</span></h1><div class="menu-buttons"><button id="btn-play" class="btn btn-primary">ENTER BATTLEFIELD</button><button id="btn-select-level" class="btn btn-secondary">SELECT MAP</button><button id="btn-leaderboard" class="btn btn-secondary">GLOBAL LEADERBOARD</button><button id="btn-controls" class="btn btn-secondary">CONTROLS</button></div></div></div>
+  <div id="level-select-menu" class="overlay-screen hidden"><div class="menu-content wide"><h2>SELECT THEATRE</h2><div class="map-grid"><div class="map-card selected" data-map="1"><h3>1. RUINED VILLAGE</h3></div><div class="map-card" data-map="2"><h3>2. SIEGFRIED TRENCHES</h3></div><div class="map-card" data-map="3"><h3>3. INDUSTRIAL FACTORY</h3></div><div class="map-card" data-map="4"><h3>4. OCCULT FORTRESS</h3></div></div><div class="diff-buttons"><button class="btn-diff" data-diff="Easy">EASY</button><button class="btn-diff active" data-diff="Normal">NORMAL</button><button class="btn-diff" data-diff="Hard">HARD</button></div><div class="screen-nav"><button id="btn-level-back" class="btn btn-secondary">BACK</button><button id="btn-level-start" class="btn btn-primary">DEPLOY NOW</button></div></div></div>
+  <div id="upgrade-menu" class="overlay-screen hidden"><div class="menu-content wide"><h2 class="text-gold">ARMORY</h2><div class="upgrade-credits-display">CREDITS: <span id="upgrade-points-val" class="text-gold">0</span></div><div class="upgrade-grid"><div class="upgrade-card"><h4>FIREPOWER</h4><div>TIER: <span id="up-lvl-damage">0</span>/5</div><button class="btn btn-sm btn-up" id="btn-up-damage">UPGRADE</button></div><div class="upgrade-card"><h4>MAX HEALTH</h4><div>TIER: <span id="up-lvl-health">0</span>/5</div><button class="btn btn-sm btn-up" id="btn-up-health">UPGRADE</button></div><div class="upgrade-card"><h4>FAST RELOAD</h4><div>TIER: <span id="up-lvl-reload">0</span>/3</div><button class="btn btn-sm btn-up" id="btn-up-reload">UPGRADE</button></div><div class="upgrade-card"><h4>AMMO POUCH</h4><div>TIER: <span id="up-lvl-ammo">0</span>/3</div><button class="btn btn-sm btn-up" id="btn-up-ammo">UPGRADE</button></div><div class="upgrade-card"><h4>BODY ARMOR</h4><div><span id="up-lvl-armor">NOT BOUGHT</span></div><button class="btn btn-sm btn-up" id="btn-up-armor">BUY</button></div><div class="upgrade-card"><h4>UNLOCK WEAPONS</h4><div id="up-lvl-weapon">NEXT: MP40</div><button class="btn btn-sm btn-up" id="btn-up-weapon">BUY</button></div></div><button id="btn-upgrade-continue" class="btn btn-primary">START NEXT WAVE</button></div></div>
+  <div id="leaderboard-menu" class="overlay-screen hidden"><div class="menu-content wide"><h2>GLOBAL HIGH SCORES</h2><div id="leaderboard-source"></div><div class="leaderboard-tabs"><button class="lb-tab active" data-diff="All">ALL</button><button class="lb-tab" data-diff="Easy">EASY</button><button class="lb-tab" data-diff="Normal">NORMAL</button><button class="lb-tab" data-diff="Hard">HARD</button></div><table class="lb-table"><thead><tr><th>RANK</th><th>SOLDIER</th><th>SCORE</th><th>WAVE</th><th>MAP</th><th>KILLS</th><th>HEADSHOTS</th><th>DIFFICULTY</th></tr></thead><tbody id="leaderboard-tbody"></tbody></table><button id="btn-lb-back" class="btn btn-secondary">BACK</button></div></div>
+  <div id="controls-menu" class="overlay-screen hidden"><div class="menu-content"><h2>CONTROLS</h2><p>WASD move · Mouse aim · Click fire · RMB ADS · R reload · 1-5 weapons · Shift sprint · Space jump · P/ESC pause</p><button id="btn-controls-back" class="btn btn-secondary">BACK</button></div></div>
+  <div id="pause-menu" class="overlay-screen hidden"><div class="menu-content"><h2>PAUSED</h2><button id="btn-resume" class="btn btn-primary">RESUME</button><button id="btn-restart" class="btn btn-secondary">RESTART</button><button id="btn-quit" class="btn btn-danger">QUIT</button></div></div>
+  <div id="gameover-menu" class="overlay-screen hidden"><div class="menu-content"><h1 class="text-red">KILLED IN ACTION</h1><div class="gameover-stats"><div>SCORE: <strong id="go-score">0</strong></div><div>WAVES: <strong id="go-waves">0</strong></div><div>KILLS: <strong id="go-kills">0</strong></div><div>HEADSHOTS: <strong id="go-headshots">0</strong></div></div><div class="score-box"><input id="player-name-input" maxlength="20" value="Private Ryan"><button id="btn-submit-score" class="btn btn-primary">SUBMIT SCORE</button><div id="submit-status-msg"></div></div><button id="btn-go-restart" class="btn btn-primary">TRY AGAIN</button><button id="btn-go-leaderboard" class="btn btn-secondary">LEADERBOARD</button><button id="btn-go-menu" class="btn btn-secondary">MENU</button></div></div>
+  <div id="victory-menu" class="overlay-screen hidden"><div class="menu-content"><h1 class="text-gold">VICTORY</h1><div>SCORE: <strong id="vic-score">0</strong></div><div>KILLS: <strong id="vic-kills">0</strong></div><div>ACCURACY: <strong id="vic-accuracy">0%</strong></div><input id="vic-player-name" maxlength="20" value="Private Ryan"><button id="btn-vic-submit-score" class="btn btn-primary">SUBMIT</button><div id="vic-submit-status"></div><button id="btn-next-level" class="btn btn-primary">NEXT MAP</button><button id="btn-vic-menu" class="btn btn-secondary">MENU</button></div></div>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
